@@ -128,7 +128,8 @@ impl Driver for UdpClient {
 
             debug!("UdpClient successfully bound to {local_addr}");
 
-            let codec = MavlinkCodec::<true, true, false, false, false, false>::default();
+            let codec = MavlinkCodec::<true, true, false, false, false, false>::default()
+                .with_forward_unknown(crate::cli::forward_unknown_messages());
             let (writer, reader) = UdpFramed::new(socket, codec).split();
 
             if let Err(reason) = udp_send_receive_run(writer, reader, &remote_addr, &context).await

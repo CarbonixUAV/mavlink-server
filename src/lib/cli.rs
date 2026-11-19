@@ -77,6 +77,12 @@ pub struct Args {
     #[arg(long, default_value = "2", value_names = ["1", "2"])]
     mavlink_version: u8,
 
+    /// Forwards MAVLink messages whose ID is unknown to the compiled dialect instead of dropping them.
+    /// Unknown messages cannot be CRC-validated (their CRC_EXTRA byte is unknown), so they are forwarded
+    /// as-is and consumers are responsible for validating them.
+    #[arg(long, default_value = "false")]
+    forward_unknown_messages: bool,
+
     /// Sets the default version used by the REST API, this will remove the prefix used by its path.
     #[arg(long, default_value = "1", value_names = ["1"])]
     default_api_version: u8,
@@ -256,6 +262,15 @@ pub fn send_initial_heartbeats() -> bool {
 #[instrument(level = "debug")]
 pub fn mavlink_version() -> u8 {
     args().mavlink_version
+}
+
+/// Note: defaults to false when the CLI is not initialized (e.g. in tests)
+#[instrument(level = "debug")]
+pub fn forward_unknown_messages() -> bool {
+    MANAGER
+        .get()
+        .map(|manager| manager.clap_matches.forward_unknown_messages)
+        .unwrap_or(false)
 }
 
 #[instrument(level = "debug")]

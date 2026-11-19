@@ -115,7 +115,8 @@ impl Driver for Serial {
 
             debug!("Successfully connected");
 
-            let codec = MavlinkCodec::<true, true, false, false, false, false>::default();
+            let codec = MavlinkCodec::<true, true, false, false, false, false>::default()
+                .with_forward_unknown(crate::cli::forward_unknown_messages());
             let (writer, reader) = Framed::new(stream, codec).split();
 
             if let Err(reason) =
